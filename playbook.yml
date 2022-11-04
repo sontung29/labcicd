@@ -3,10 +3,10 @@
   remote_user: root
   become: true
   tasks:
-  - name: "Installing epel-release packages"
-    yum:
-      name: epel-release
-      state: present
+  # - name: "Installing epel-release packages"
+  #   yum:
+  #     name: epel-release
+  #     state: present
 
   - name: "Installing system packages"
     yum:
