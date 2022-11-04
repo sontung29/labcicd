@@ -9,11 +9,11 @@
           - docker
           - docker-compose
         state: present
-    - name: Add group docker
-      user:
-        name=root
-        groups=docker
-        append=yes
+    # - name: Add group docker
+    #   user:
+    #     name=root
+    #     groups=docker
+    #     append=yes
     - name: Login DockerHub
       shell: docker login -u "{{DOCKER_USERNAME}}" -p "{{DOCKER_PASSWORD}}"
     - name: Copy file
