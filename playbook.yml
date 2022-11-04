@@ -9,7 +9,7 @@
           - docker
           - docker-compose
         state: present
-    - name: " Starting and Enabling Docker service"
+    - name: "Starting and Enabling Docker service"
       service:
         name: docker
         state: started
@@ -19,7 +19,7 @@
     - name: Copy file
       copy:
         src: docker-compose.yaml
-        dest: /home/centos/
+        dest: /root/centos/
     - name: Restart docker-compose
       shell: |
           docker-compose stop
