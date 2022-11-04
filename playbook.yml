@@ -10,7 +10,7 @@
           - docker-compose
         state: present
     - name: Add group docker
-      shell: usermod -aG docker $(whoami)
+      shell: usermod -aG docker root
     - name: Login DockerHub
       shell: docker login -u "{{DOCKER_USERNAME}}" -p "{{DOCKER_PASSWORD}}"
     - name: Copy file
