@@ -1,10 +1,10 @@
 ---
 - hosts: server
-  remote_user: ubuntu
-  become: yes
+  remote_user: root
+  become: true
   tasks:
     - name: Install Docker
-      apt:
+      yum:
         name:
           - docker
           - docker-compose
@@ -14,7 +14,7 @@
     - name: Copy file
       copy:
         src: docker-compose.yaml
-        dest: /home/ubuntu/
+        dest: /home/centos/
     - name: Restart docker-compose
       shell: |
           docker-compose stop
