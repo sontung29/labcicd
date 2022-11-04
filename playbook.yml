@@ -19,12 +19,13 @@
     - name: Copy file
       copy:
         src: docker-compose.yaml
-        dest: /root/
+        dest: /root/nginx/
     - name: Restart docker-compose
       shell: |
           docker-compose stop
           docker-compose rm -f
           docker-compose pull
           docker-compose up -d
+          chdir: /root/nginx/
 ...
   
