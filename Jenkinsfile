@@ -37,7 +37,7 @@ pipeline {
                     ansiblePlaybook(
                         credentialsId: 'private_key',
                         playbook: 'playbook.yml',
-                        inventory: 'inven.ini',
+                        inventory: 'hosts',
                         become: 'yes',
                         extraVars: [
                             DOCKER_USERNAME: "${DOCKER_USERNAME}",
