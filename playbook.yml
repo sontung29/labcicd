@@ -19,7 +19,7 @@
     - name: Copy file
       copy:
         src: docker-compose.yaml
-        dest: /root/centos/
+        dest: /root/
     - name: Restart docker-compose
       shell: |
           docker-compose stop
