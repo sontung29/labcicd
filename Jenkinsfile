@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE        = "tungms/nginx"
     }
     stages {
-        stage(“Compile & Build Binary”) {
+        stage("Compile & Build Binary") {
             parallel {
                 stage("Build"){
                     options {
