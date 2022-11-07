@@ -3,7 +3,7 @@ pipeline {
     //  agent {
     //     label 'slave2' // choose slave to build
     // }   
-    agent none
+    // agent none
     environment{
         DOCKER_IMAGE        = "tungms/nginx"
     }
