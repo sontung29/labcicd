@@ -5,7 +5,7 @@
 //     }
 parallel (
 "stream 1" : { 
-    node('master') {  // runs on one of the nodes labelled as linux nodes
+    node('Built-In Node') {  // runs on one of the nodes labelled as linux nodes
         build 'Build'
     }
 },
