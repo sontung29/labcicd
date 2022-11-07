@@ -1,6 +1,8 @@
 //Jenkinsfile
 pipeline {
-    agent slave2
+    agent {
+        label 'slave2'
+    }
     environment{
         DOCKER_IMAGE        = "tungms/nginx"
     }
