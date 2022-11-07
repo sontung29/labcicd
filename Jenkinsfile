@@ -1,5 +1,8 @@
 //Jenkinsfile
 pipeline {
+    //  agent {
+    //     label 'slave2' // choose slave to build
+    // }   
     agent none
     environment{
         DOCKER_IMAGE        = "tungms/nginx"
@@ -32,7 +35,9 @@ pipeline {
                     sh "docker image rm ${DOCKER_IMAGE}:latest"
                 }
             }
-            stage("Deploy"){
+        }        
+        stage("Deploy"){
+            parallel {
                 agent {
                     label "slave2"
                     }            
@@ -56,13 +61,13 @@ pipeline {
                 }
             }
         }
-        post {
-            success {
-                echo "SUCCESSFULL"
-            }
-            failure {
-                echo "FAILED"
-            }
+    }
+    post {
+        success {
+            echo "SUCCESSFULL"
+        }
+        failure {
+            echo "FAILED"
         }
     }
 }
