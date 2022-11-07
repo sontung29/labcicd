@@ -1,8 +1,19 @@
 //Jenkinsfile
-pipeline {
-    agent {
-        label 'slave2'
+// pipeline {
+//     agent {
+//         label 'slave2'
+//     }
+parallel (
+"stream 1" : { 
+    node('master') {  // runs on one of the nodes labelled as linux nodes
+        build 'Build'
     }
+},
+"stream 2" : {
+    node('slave2'){  // only runs on node named_foo_node
+        build 'Deploy'
+    }
+}
     environment{
         DOCKER_IMAGE        = "tungms/nginx"
     }
