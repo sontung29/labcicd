@@ -1,72 +1,68 @@
 //Jenkinsfile
-// pipeline {
-//     agent {
-//         label 'slave2'
-//     }
-parallel (
-"stream 1" : { 
-    node('Built-In Node') {  // runs on one of the nodes labelled as linux nodes
-        build 'Build'
-    }
-},
-"stream 2" : {
-    node('slave2'){  // only runs on node named_foo_node
-        build 'Deploy'
-    }
-}
+pipeline {
+    agent none
     environment{
         DOCKER_IMAGE        = "tungms/nginx"
     }
     stages {
         stage("Build"){
-            options {
-                timeout(time: 10, unit: 'MINUTES')
-            }
-            environment {
-                DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
-            }
-            steps {
-                sh '''
-                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile . 
-                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-                    docker image ls | grep ${DOCKER_IMAGE}'''
-                withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')])
-                {
-                    sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
+            parallel {
+                agent {
+                    label "master"
+                    }
+                options {
+                    timeout(time: 10, unit: 'MINUTES')
                 }
+                environment {
+                    DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
+                }
+                steps {
+                    sh '''
+                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f Dockerfile . 
+                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                        docker image ls | grep ${DOCKER_IMAGE}'''
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')])
+                    {
+                        sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        sh "docker push ${DOCKER_IMAGE}:latest"
+                    }
 // clean to save disk
-                sh "docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                sh "docker image rm ${DOCKER_IMAGE}:latest"
+                    sh "docker image rm ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker image rm ${DOCKER_IMAGE}:latest"
+                }
             }
-        }
-        stage("Deploy"){
-            options {
-                timeout(time: 10, unit: 'MINUTES')
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    ansiblePlaybook(
-                        credentialsId: 'ssh-key',
-                        playbook: 'playbook.yml',
-                        inventory: 'hosts',
-                        become: 'yes',
-                        extraVars: [
-                            DOCKER_USERNAME: "${DOCKER_USERNAME}",
-                            DOCKER_PASSWORD: "${DOCKER_PASSWORD}" 
-                        ]
-                    )
+            stage("Deploy"){
+                agent {
+                    label "slave2"
+                    }            
+                options {
+                    timeout(time: 10, unit: 'MINUTES')
+                }
+                steps {
+                
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        ansiblePlaybook(
+                            credentialsId: 'ssh-key',
+                            playbook: 'playbook.yml',
+                            inventory: 'hosts',
+                            become: 'yes',
+                            extraVars: [
+                                DOCKER_USERNAME: "${DOCKER_USERNAME}",
+                                DOCKER_PASSWORD: "${DOCKER_PASSWORD}" 
+                            ]
+                        )
+                    }
                 }
             }
         }
-    }
-    post {
-        success {
-            echo "SUCCESSFULL"
-        }
-        failure {
-            echo "FAILED"
+        post {
+            success {
+                echo "SUCCESSFULL"
+            }
+            failure {
+                echo "FAILED"
+            }
         }
     }
 }
